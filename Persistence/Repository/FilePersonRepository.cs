@@ -23,7 +23,12 @@ namespace Persistence.Repository
             };
 
             if (!File.Exists(_filePath))
+            {
+                var seedData = GetSeedData();
+                var jsonSeed = JsonSerializer.Serialize(seedData, new JsonSerializerOptions { WriteIndented = true });
+
                 File.WriteAllTextAsync(_filePath, "[]");
+            }
         }
 
         private async Task<List<Person>> LoadDataAsync(CancellationToken cancellationToken = default)
@@ -93,7 +98,29 @@ namespace Persistence.Repository
             var person = persons.FirstOrDefault(p => p.NationalCode == nationalCode);
             return person;
 
+        }
 
+        private static List<Person> GetSeedData()
+        {
+            return new List<Person>
+        {
+            new Person
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "ali",
+                LastName = "mmdoost",
+                NationalCode = "2110866666",
+                BirthDate = DateTime.Parse("2000-08-31T19:30:00Z").ToUniversalTime()
+            },
+            new Person
+            {
+                Id = Guid.NewGuid(),
+                FirstName = "nazanain",
+                LastName = "akbari",
+                NationalCode = "2120866666",
+                BirthDate = DateTime.Parse("2002-08-31T19:30:00Z").ToUniversalTime()
+            }
+        };
         }
     }
 }
