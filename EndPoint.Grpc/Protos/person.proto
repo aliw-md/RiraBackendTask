@@ -1,0 +1,60 @@
+syntax = "proto3";
+
+option csharp_namespace = "EndPoint.Grpc.Protos";
+
+import "google/protobuf/timestamp.proto";
+
+
+service PersonProtoService {
+  rpc CreatePerson (CreatePersonRequest) returns (CreatePersonResponse);
+  rpc GetPerson (GetPersonRequest) returns (GetPersonResponse);
+  rpc GetAllPersons (GetAllPersonsRequest) returns (GetAllPersonsResponse);
+  rpc UpdatePerson (UpdatePersonRequest) returns (UpdatePersonResponse);
+  rpc DeletePerson (DeletePersonRequest) returns (DeletePersonResponse);
+}
+
+
+message PersonMessage {
+  string id = 1;
+  string first_name = 2;
+  string last_name = 3;
+  string national_code = 4;
+  google.protobuf.Timestamp birth_date = 5;
+}
+
+
+
+message CreatePersonRequest {
+  PersonMessage person = 1;
+}
+message CreatePersonResponse {
+  PersonMessage person = 1;
+}
+
+message GetPersonRequest {
+  string id = 1;
+}
+message GetPersonResponse {
+  PersonMessage person = 1;
+}
+
+message UpdatePersonRequest {
+  PersonMessage person = 1;
+}
+message UpdatePersonResponse {
+  PersonMessage person = 1;
+}
+
+message DeletePersonRequest {
+  string id = 1;
+}
+message DeletePersonResponse {
+  bool success = 1;
+  string message = 2;
+}
+
+message GetAllPersonsRequest {}
+message GetAllPersonsResponse {
+  repeated PersonMessage persons = 1;
+}
+
