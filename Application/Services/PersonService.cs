@@ -26,9 +26,7 @@ namespace Application.Services
             if (!validationResult.IsValid)
                 throw new ValidationException(validationResult.Errors);
 
-            var all = await _personRepository.GetAllAsync(ct);
-
-            if (all != null && all.Where(x => x.NationalCode == person.NationalCode).Any())
+            if (await _personRepository.GetByNationalCodeAsync(person.NationalCode) != null)
                 throw new InvalidOperationException("Another person with this national code already exists.");
 
             return await _personRepository.CreateAsync(person, ct);
