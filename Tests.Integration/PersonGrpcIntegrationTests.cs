@@ -16,7 +16,7 @@ namespace Tests.Integration
         private readonly PersonProtoService.PersonProtoServiceClient _client;
         private readonly string _dataFilePath;
 
-
+        #region Constructor
         public PersonGrpcIntegrationTests(WebApplicationFactory<Program> factory)
         {
             _factory = factory.WithWebHostBuilder(builder =>
@@ -34,27 +34,13 @@ namespace Tests.Integration
             _dataFilePath = Path.Combine(AppContext.BaseDirectory, "Data", "persons.json");
 
         }
+        #endregion
 
-        [Fact]
-        public async Task CreatePerson_ShouldSucceed()
-        {
-            var person = new PersonMessage
-            {
-                FirstName = "Ali",
-                LastName = "Test",
-                NationalCode = "1234555555",
-                BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-25))
-            };
-
-            var response = await _client.CreatePersonAsync(new CreatePersonRequest { Person = person });
-
-            response.Should().NotBeNull();
-            response.Person.FirstName.Should().Be("Ali");
-        }
-
+        #region GetPerson test
         [Fact]
         public async Task GetPerson_ShouldReturnExistingPerson()
         {
+            //Arrange
             var person = new PersonMessage
             {
                 FirstName = "Kaveh",
@@ -63,35 +49,21 @@ namespace Tests.Integration
                 BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-22))
             };
 
+            //Act
             var created = await _client.CreatePersonAsync(new CreatePersonRequest { Person = person });
             var fetched = await _client.GetPersonAsync(new GetPersonRequest { Id = created.Person.Id });
 
+            //Assert
             fetched.Person.Id.Should().Be(created.Person.Id);
             fetched.Person.FirstName.Should().Be("Sara");
         }
+        #endregion
 
-        [Fact]
-        public async Task UpdatePerson_ShouldUpdateSuccessfully()
-        {
-            var person = new PersonMessage
-            {
-                FirstName = "Reza",
-                LastName = "Miri",
-                NationalCode = "1234555555",
-                BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-28))
-            };
-
-            var created = await _client.CreatePersonAsync(new CreatePersonRequest { Person = person });
-
-            created.Person.FirstName = "RezaUpdated";
-            var updated = await _client.UpdatePersonAsync(new UpdatePersonRequest { Person = created.Person });
-
-            updated.Person.FirstName.Should().Be("RezaUpdated");
-        }
-
+        #region DeletePerson Test
         [Fact]
         public async Task DeletePerson_ShouldRemoveSuccessfully()
         {
+            //Arrange
             var person = new PersonMessage
             {
                 FirstName = "DeleteMe",
@@ -100,12 +72,35 @@ namespace Tests.Integration
                 BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-40))
             };
 
+            //Act
             var created = await _client.CreatePersonAsync(new CreatePersonRequest { Person = person });
             var deleted = await _client.DeletePersonAsync(new DeletePersonRequest { Id = created.Person.Id });
 
+            //Assert
             deleted.Success.Should().BeTrue();
         }
+        #endregion
 
+        #region CreatePerson tests
+        [Fact]
+        public async Task CreatePerson_ShouldSucceed()
+        {
+            //Arrange
+            var person = new PersonMessage
+            {
+                FirstName = "Ali",
+                LastName = "Test",
+                NationalCode = "1234555555",
+                BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-25))
+            };
+
+            //ACt
+            var response = await _client.CreatePersonAsync(new CreatePersonRequest { Person = person });
+
+            //Assert
+            response.Should().NotBeNull();
+            response.Person.FirstName.Should().Be("Ali");
+        }
 
         [Theory]
         [InlineData("", "ValidLastName", "1234567890")]   // FirstName خالی
@@ -125,6 +120,7 @@ namespace Tests.Integration
                 BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-25))
             };
 
+            //Act
             Func<Task> act = async () =>
             {
                 await _client.CreatePersonAsync(new CreatePersonRequest { Person = personMessage });
@@ -135,10 +131,35 @@ namespace Tests.Integration
             ex.StatusCode.Should().Be(StatusCode.InvalidArgument);
         }
 
+        #endregion
+
+        #region UpdatePerson tests
+        [Fact]
+        public async Task UpdatePerson_ShouldUpdateSuccessfully()
+        {
+            //Arrange
+            var person = new PersonMessage
+            {
+                FirstName = "Reza",
+                LastName = "Miri",
+                NationalCode = "1234555555",
+                BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow.AddYears(-28))
+            };
+
+            //Act
+            var created = await _client.CreatePersonAsync(new CreatePersonRequest { Person = person });
+
+            created.Person.FirstName = "RezaUpdated";
+            var updated = await _client.UpdatePersonAsync(new UpdatePersonRequest { Person = created.Person });
+
+            //Assert
+            updated.Person.FirstName.Should().Be("RezaUpdated");
+        }
 
         [Fact]
         public async Task UpdatePerson_ShouldThrowNotFound_WhenPersonNotExists()
         {
+            //Arrange
             var person = new PersonMessage
             {
                 Id = Guid.NewGuid().ToString(),
@@ -147,13 +168,15 @@ namespace Tests.Integration
                 NationalCode = "9999999999",
                 BirthDate = Google.Protobuf.WellKnownTypes.Timestamp.FromDateTime(DateTime.UtcNow)
             };
-
+            //Act
             Func<Task> act = async () =>
                 await _client.UpdatePersonAsync(new UpdatePersonRequest { Person = person });
-
+            //Assert
             var ex = await Assert.ThrowsAsync<RpcException>(act);
             ex.StatusCode.Should().Be(StatusCode.NotFound);
         }
+
+        #endregion
 
         public void Dispose()
         {
