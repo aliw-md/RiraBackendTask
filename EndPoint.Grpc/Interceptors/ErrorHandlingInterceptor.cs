@@ -64,6 +64,12 @@ public class ErrorHandlingInterceptor : Interceptor
             _logger.LogWarning("Not supported: {Message}", ex.Message);
             throw new RpcException(new Status(StatusCode.Unimplemented, ex.Message));
         }
+        catch (FluentValidation.ValidationException ex)
+        {
+            var messages = string.Join("; ", ex.Errors.Select(e => $"{e.PropertyName}: {e.ErrorMessage}"));
+            _logger.LogWarning("Validation failed: {Messages}", messages);
+            throw new RpcException(new Status(StatusCode.InvalidArgument, messages));
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Unexpected internal server error.");

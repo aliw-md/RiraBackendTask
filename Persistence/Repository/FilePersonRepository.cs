@@ -11,10 +11,9 @@ namespace Persistence.Repository
 
         public FilePersonRepository()
         {
-            var dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
+            string dataDir = Path.Combine(AppContext.BaseDirectory, "Data");
             if (!Directory.Exists(dataDir))
                 Directory.CreateDirectory(dataDir);
-
             _filePath = Path.Combine(dataDir, "persons.json");
 
             _jsonOptions = new JsonSerializerOptions
@@ -29,13 +28,13 @@ namespace Persistence.Repository
 
         private async Task<List<Person>> LoadDataAsync(CancellationToken cancellationToken = default)
         {
-            var json = await File.ReadAllTextAsync(_filePath, cancellationToken);
+            string json = await File.ReadAllTextAsync(_filePath, cancellationToken);
             return JsonSerializer.Deserialize<List<Person>>(json, _jsonOptions) ?? new List<Person>();
         }
 
         private async Task SaveDataAsync(List<Person> persons, CancellationToken cancellationToken = default)
         {
-            var json = JsonSerializer.Serialize(persons, _jsonOptions);
+            string json = JsonSerializer.Serialize(persons, _jsonOptions);
             await File.WriteAllTextAsync(_filePath, json, cancellationToken);
         }
 

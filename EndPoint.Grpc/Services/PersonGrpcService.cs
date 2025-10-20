@@ -58,19 +58,9 @@ namespace EndPoint.Grpc.Services
 
             var person = FromMessage(request.Person);
 
-            try
-            {
-                var created = await _service.CreatePerson(person);
-                return new CreatePersonResponse { Person = ToMessage(created) };
-            }
-            catch (ArgumentException ex)
-            {
-                throw new RpcException(new Status(StatusCode.InvalidArgument, ex.Message));
-            }
-            catch (Exception ex)
-            {
-                throw new RpcException(new Status(StatusCode.Internal, "Internal server error: " + ex.Message));
-            }
+            var created = await _service.CreatePerson(person);
+            return new CreatePersonResponse { Person = ToMessage(created) };
+
         }
 
         public override async Task<GetPersonResponse> GetPerson(GetPersonRequest request, ServerCallContext context)

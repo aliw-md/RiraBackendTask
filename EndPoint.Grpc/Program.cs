@@ -16,7 +16,7 @@ namespace EndPoint.Grpc
 
             builder.WebHost.ConfigureKestrel(options =>
             {
-                options.ListenLocalhost(5079, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
+                options.ListenLocalhost(5179, o => o.Protocols = Microsoft.AspNetCore.Server.Kestrel.Core.HttpProtocols.Http2);
             });
 
             // Add services to the container.
