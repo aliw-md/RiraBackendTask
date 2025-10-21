@@ -32,6 +32,8 @@ Contains the gRPC server endpoint (`PersonProtoService`) which is responsible fo
 
 This is the main API layer of the system.
 
+* For handeling errors, I added an interceptor and tried to handle and map all exceptions to suitable RpcExceptions and throw them with explicit meanningful messages.
+
 ### Console Application
 
 A console client that communicates with the gRPC server.
